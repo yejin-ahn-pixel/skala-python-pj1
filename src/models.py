@@ -76,3 +76,25 @@ class ValidatedData(BaseModel):
     weather: WeatherData
     country: CountryData
     ip_info: IpData
+
+
+class PipelineRecord(BaseModel):
+    """One normalized row ready for CSV or Parquet storage."""
+
+    forecast_time: datetime
+    temperature_2m: float
+    precipitation_probability: PrecipitationProbability
+    weather_timezone: str
+    weather_latitude: Latitude
+    weather_longitude: Longitude
+    country_name: str
+    country_code: str
+    country_capital: str
+    country_region: str
+    source_ip: str
+    ip_country: str
+    ip_region: str
+    ip_city: str
+    ip_latitude: Latitude
+    ip_longitude: Longitude
+    ip_timezone: str
