@@ -1,4 +1,13 @@
-"""Entry point for the concurrent data collection pipeline."""
+# ============================================================================
+# 작성자: 안예진
+# 작성목적: 공개 API 데이터를 비동기로 수집·검증하고 저장 성능을 비교하는 실습
+# 작성일: 2026-07-20
+#
+# 변경사항 내역 (날짜, 변경목적, 변경내용 순으로 기입)
+# 2026-07-20: 과제 구현, API 수집·Pydantic 검증·CSV/Parquet 비교 기능 작성
+# ============================================================================
+
+"""비동기 데이터 수집 파이프라인"""
 
 import asyncio
 from pathlib import Path
@@ -12,9 +21,9 @@ from src.pipeline import collect_all, validate_collected_data
 from src.storage import StorageBenchmark, benchmark_storage, build_tabular_records
 
 
-# 날씨 응답에서 이후 검증에 사용할 필드를 요약 출력합니다.
+# 날씨 응답에서 이후 검증에 사용할 필드를 요약 출력함.
 def print_weather_summary(data: WeatherData) -> None:
-    """Print the weather fields selected for later validation."""
+    """검증된 날씨 데이터의 주요 필드를 요약 출력함."""
     hourly = data.hourly
     print("\n[Open-Meteo]")
     print(f"timezone: {data.timezone}")
@@ -24,9 +33,9 @@ def print_weather_summary(data: WeatherData) -> None:
     print(f"first precipitation probability: {hourly.precipitation_probability[0]} %")
 
 
-# 국가 응답에서 이후 검증에 사용할 필드를 요약 출력합니다.
+# 국가 응답에서 이후 검증에 사용할 필드를 요약 출력함.
 def print_country_summary(data: CountryData) -> None:
-    """Print the country fields selected for later validation."""
+    """검증된 국가 데이터의 주요 필드를 요약 출력함."""
     print("\n[Countries.dev]")
     print(f"name: {data.name}")
     print(f"country code: {data.alpha3_code}")
@@ -35,9 +44,9 @@ def print_country_summary(data: CountryData) -> None:
     print(f"latitude/longitude: {data.latlng}")
 
 
-# IP 응답에서 이후 검증에 사용할 필드를 요약 출력합니다.
+# IP 응답에서 이후 검증에 사용할 필드를 요약 출력함.
 def print_ip_summary(data: IpData) -> None:
-    """Print the IP location fields selected for later validation."""
+    """검증된 IP 지역 데이터의 주요 필드를 요약 출력함."""
     print("\n[ip-api]")
     print(f"ip: {data.ip}")
     print(f"location: {data.country}, {data.region_name}, {data.city}")
@@ -45,9 +54,9 @@ def print_ip_summary(data: IpData) -> None:
     print(f"timezone: {data.timezone}")
 
 
-# CSV와 Parquet의 저장 성능 비교 결과를 표 형태로 출력합니다.
+# CSV와 Parquet의 저장 성능 비교 결과를 표 형태로 출력함.
 def print_storage_benchmarks(results: list[StorageBenchmark]) -> None:
-    """Print storage benchmark results as an aligned table."""
+    """저장 성능 측정 결과를 정렬된 표로 출력함."""
     print("\nStorage performance comparison (5-run average)")
     print(f"{'Format':<10}{'Rows':>8}{'Write(ms)':>14}{'Read(ms)':>12}{'Bytes':>12}")
     for result in results:
@@ -59,15 +68,17 @@ def print_storage_benchmarks(results: list[StorageBenchmark]) -> None:
         print(f"  saved: {result.path}")
 
 
-# 세 API를 동시에 수집하고 결과와 소요 시간을 출력합니다.
+# 세 API를 동시에 수집하고 결과와 소요 시간을 출력함.
 async def main() -> None:
-    """Run the concurrent collection pipeline and display its results."""
+    """전체 비동기 수집 파이프라인을 실행하고 결과를 출력함."""
     started_at = perf_counter()
 
     try:
+        # 원본 수집 후 스키마 검증과 저장용 레코드 변환을 차례로 수행함.
         collected = await collect_all()
         validated = validate_collected_data(collected)
         records = build_tabular_records(validated)
+        # 동일한 레코드로 CSV와 Parquet의 저장 성능을 비교함.
         benchmarks = benchmark_storage(records, Path("data"), iterations=5)
     except httpx.HTTPStatusError as exc:
         print(
@@ -85,6 +96,7 @@ async def main() -> None:
         print(f"Pipeline data processing failed: {exc}")
         return
 
+    # 처리에 성공한 경우에만 검증 결과와 성능 정보를 출력함.
     elapsed = perf_counter() - started_at
     print_weather_summary(validated.weather)
     print_country_summary(validated.country)

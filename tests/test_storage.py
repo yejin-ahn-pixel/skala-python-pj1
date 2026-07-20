@@ -1,4 +1,4 @@
-"""Tests for normalized tabular record creation."""
+"""정규화 레코드 생성과 파일 저장을 테스트함."""
 
 from pathlib import Path
 
@@ -13,7 +13,7 @@ from src.storage import (
 )
 
 
-# 저장 변환 테스트에 사용할 검증 완료 데이터를 만듭니다.
+# 저장 변환 테스트에 사용할 검증 완료 데이터를 만듦.
 def make_validated_data() -> ValidatedData:
     return ValidatedData.model_validate(
         {
@@ -50,7 +50,7 @@ def make_validated_data() -> ValidatedData:
     )
 
 
-# 시간대별 날씨 행마다 동일한 국가와 IP 정보가 결합되는지 확인합니다.
+# 시간대별 날씨 행마다 동일한 국가와 IP 정보가 결합되는지 확인함.
 def test_build_tabular_records_combines_sources() -> None:
     records = build_tabular_records(make_validated_data())
 
@@ -60,7 +60,7 @@ def test_build_tabular_records_combines_sources() -> None:
     assert records[1].source_ip == "8.8.8.8"
 
 
-# CSV 저장 후 원본과 같은 행 수를 읽을 수 있는지 확인합니다.
+# CSV 저장 후 원본과 같은 행 수를 읽을 수 있는지 확인함.
 def test_csv_round_trip(tmp_path: Path) -> None:
     records = build_tabular_records(make_validated_data())
     path = tmp_path / "records.csv"
@@ -71,7 +71,7 @@ def test_csv_round_trip(tmp_path: Path) -> None:
     assert len(read_csv(path)) == len(records)
 
 
-# Parquet 저장 후 원본의 행 수와 열 수가 보존되는지 확인합니다.
+# Parquet 저장 후 원본의 행 수와 열 수가 보존되는지 확인함.
 def test_parquet_round_trip(tmp_path: Path) -> None:
     records = build_tabular_records(make_validated_data())
     path = tmp_path / "records.parquet"
@@ -84,7 +84,7 @@ def test_parquet_round_trip(tmp_path: Path) -> None:
     assert table.num_columns == len(PipelineRecord.model_fields)
 
 
-# 두 저장 형식의 측정 결과와 파일이 모두 생성되는지 확인합니다.
+# 두 저장 형식의 측정 결과와 파일이 모두 생성되는지 확인함.
 def test_benchmark_storage_creates_both_formats(tmp_path: Path) -> None:
     records = build_tabular_records(make_validated_data())
 

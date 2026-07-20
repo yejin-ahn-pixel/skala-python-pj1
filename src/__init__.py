@@ -1,1 +1,1 @@
-"""Data collection mini pipeline package."""
+"""데이터 수집 미니 파이프라인 패키지임."""

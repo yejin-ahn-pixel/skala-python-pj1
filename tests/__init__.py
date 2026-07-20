@@ -1,1 +1,1 @@
-"""Test package for the data collection mini pipeline."""
+"""데이터 수집 미니 파이프라인의 테스트 패키지임."""

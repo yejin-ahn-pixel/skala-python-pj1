@@ -1,4 +1,4 @@
-"""Tests for Pydantic API response validation."""
+"""Pydantic API 응답 검증 모델을 테스트함."""
 
 import pytest
 from pydantic import ValidationError
@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from src.models import CountryData, HourlyWeather, IpData
 
 
-# 올바른 시간대별 날씨 배열이 정상적으로 검증되는지 확인합니다.
+# 올바른 시간대별 날씨 배열이 정상적으로 검증되는지 확인함.
 def test_hourly_weather_accepts_valid_values() -> None:
     weather = HourlyWeather.model_validate(
         {
@@ -20,7 +20,7 @@ def test_hourly_weather_accepts_valid_values() -> None:
     assert weather.temperature_2m[0] == 23.2
 
 
-# 강수확률이 0~100 범위를 벗어나면 검증에 실패하는지 확인합니다.
+# 강수확률이 0~100 범위를 벗어나면 검증에 실패하는지 확인함.
 def test_hourly_weather_rejects_invalid_probability() -> None:
     with pytest.raises(ValidationError):
         HourlyWeather.model_validate(
@@ -32,7 +32,7 @@ def test_hourly_weather_rejects_invalid_probability() -> None:
         )
 
 
-# 시간·기온·강수확률 배열 길이가 다르면 검증에 실패하는지 확인합니다.
+# 시간·기온·강수확률 배열 길이가 다르면 검증에 실패하는지 확인함.
 def test_hourly_weather_rejects_different_lengths() -> None:
     with pytest.raises(ValidationError):
         HourlyWeather.model_validate(
@@ -44,7 +44,7 @@ def test_hourly_weather_rejects_different_lengths() -> None:
         )
 
 
-# 국가 코드와 좌표가 올바른 국가 응답을 검증합니다.
+# 국가 코드와 좌표가 올바른 국가 응답을 검증함.
 def test_country_data_accepts_api_aliases() -> None:
     country = CountryData.model_validate(
         {
@@ -60,7 +60,7 @@ def test_country_data_accepts_api_aliases() -> None:
     assert country.alpha3_code == "KOR"
 
 
-# IP 좌표가 허용 범위를 벗어나면 검증에 실패하는지 확인합니다.
+# IP 좌표가 허용 범위를 벗어나면 검증에 실패하는지 확인함.
 def test_ip_data_rejects_invalid_latitude() -> None:
     with pytest.raises(ValidationError):
         IpData.model_validate(

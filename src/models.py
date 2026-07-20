@@ -1,4 +1,4 @@
-"""Pydantic v2 models for validating collected API data."""
+"""수집한 API 데이터를 검증하는 Pydantic v2 모델을 정의함."""
 
 from datetime import datetime
 from typing import Annotated, Literal
@@ -11,15 +11,16 @@ PrecipitationProbability = Annotated[int, Field(ge=0, le=100)]
 
 
 class HourlyWeather(BaseModel):
-    """Hourly arrays returned inside an Open-Meteo response."""
+    """Open-Meteo 응답에 포함된 시간대별 배열을 표현함."""
 
     time: list[datetime]
     temperature_2m: list[float]
     precipitation_probability: list[PrecipitationProbability]
 
-    # 시간·기온·강수확률 배열의 길이가 모두 같은지 검증합니다.
+    # 시간·기온·강수확률 배열의 길이가 모두 같은지 검증함.
     @model_validator(mode="after")
     def validate_equal_lengths(self) -> "HourlyWeather":
+        # 세 배열의 길이를 집합으로 만들어 서로 같은지 확인함.
         lengths = {
             len(self.time),
             len(self.temperature_2m),
@@ -33,7 +34,7 @@ class HourlyWeather(BaseModel):
 
 
 class WeatherData(BaseModel):
-    """Validated Open-Meteo response fields used by this project."""
+    """프로젝트에서 사용하는 Open-Meteo 응답 필드를 검증함."""
 
     latitude: Latitude
     longitude: Longitude
@@ -42,7 +43,7 @@ class WeatherData(BaseModel):
 
 
 class CountryData(BaseModel):
-    """Validated Countries.dev response fields used by this project."""
+    """프로젝트에서 사용하는 Countries.dev 응답 필드를 검증함."""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -55,7 +56,7 @@ class CountryData(BaseModel):
 
 
 class IpData(BaseModel):
-    """Validated ip-api response fields used by this project."""
+    """프로젝트에서 사용하는 ip-api 응답 필드를 검증함."""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -71,7 +72,7 @@ class IpData(BaseModel):
 
 
 class ValidatedData(BaseModel):
-    """Validated responses from every source API."""
+    """세 원본 API에서 검증을 마친 응답을 하나로 묶음."""
 
     weather: WeatherData
     country: CountryData
@@ -79,7 +80,7 @@ class ValidatedData(BaseModel):
 
 
 class PipelineRecord(BaseModel):
-    """One normalized row ready for CSV or Parquet storage."""
+    """CSV 또는 Parquet 저장에 사용할 정규화된 한 행을 표현함."""
 
     forecast_time: datetime
     temperature_2m: float
